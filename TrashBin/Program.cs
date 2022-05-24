@@ -10,7 +10,9 @@ namespace ConsoleApplication1
     {
         int k;
         public static int countflag = 0;
-
+        public static bool Flag=false;
+        public static Stopwatch stw = new Stopwatch();
+        public static event Action Timer;
         public MyClass(int i)
         {
             k = i;
@@ -21,8 +23,14 @@ namespace ConsoleApplication1
         ~MyClass()
         {
             //Console.WriteLine("Объект {0} уничтожен", k);
-            if(countflag!=0 && countflag!=1)Console.WriteLine(countflag);
-            countflag = 0;
+            Timer?.Invoke();
+                
+                /*if (countflag!=0 && countflag!=1)Console.WriteLine(countflag+"!");
+                            countflag = 0;*/
+                
+            
+            
+            
         }
 
         // Метод создающий и тут же уничтожающий объект
@@ -36,21 +44,33 @@ namespace ConsoleApplication1
     {
         static void Main()
         {
-            Stopwatch stw = new Stopwatch();
-            stw.Start();
+            MyClass.Timer += MyClass_Timer;
             int i = 1;
             MyClass obj = new MyClass(0);
 
-            for (; i < 12000000000000000; i++)
+            for (; i < 1200000; i++)
             {
                 obj.objectGenerator(i);
+                if (MyClass.Flag == true)
+                {
+                    MyClass.stw.Stop();
+                    Console.WriteLine(MyClass.stw.ElapsedTicks);
+                    
+                }
+                MyClass.Flag = false;                
             }
 
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Конец");
-            stw.Stop();
-            Console.WriteLine(stw.ElapsedMilliseconds);
+            //Console.ForegroundColor = ConsoleColor.Red;
+            //Console.WriteLine("Конец");
+            
             //Console.ReadLine();
+        }
+
+        private static void MyClass_Timer()
+        {
+            MyClass.stw.Start();
+            MyClass.Flag = true;
+            MyClass.Timer -= MyClass_Timer;
         }
     }
 }
